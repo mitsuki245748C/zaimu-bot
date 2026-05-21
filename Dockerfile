@@ -6,15 +6,25 @@ FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
+# アプリをrootではなく専用ユーザーで実行します。
+# Raspberry Piの通常ユーザーはUID/GIDが1000であることが多いため、
+# bind mountした ./data にも書き込みやすいように1000で揃えます。
+RUN groupadd --gid 1000 app \
+    && useradd --uid 1000 --gid app --create-home --shell /usr/sbin/nologin app
+
 # コンテナ内の作業ディレクトリです。
 WORKDIR /app
 
 # まずアプリ本体だけをコピーします。
 # 今は外部ライブラリを使っていないので、pip installは不要です。
-COPY zaimu_bot ./zaimu_bot
+COPY --chown=app:app zaimu_bot ./zaimu_bot
 
 # CSV保存先のディレクトリを作っておきます。
-RUN mkdir -p /app/data/imports/paypay/inbox
+RUN mkdir -p /app/data/imports/paypay/inbox \
+    && chown -R app:app /app
+
+# ここ以降のプロセスは非rootユーザーで実行します。
+USER app
 
 # アップロードAPIの標準ポートです。
 EXPOSE 8080

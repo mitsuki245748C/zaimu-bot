@@ -11,4 +11,5 @@ services:
       - "${HOST_BIND_IP:-0.0.0.0}:${HOST_UPLOAD_PORT:?HOST_UPLOAD_PORT is required}:${UPLOAD_PORT:-8080}"
     volumes:
       - ./data:/app/data
+    user: "${APP_UID:-1000}:${APP_GID:-1000}"
     restart: unless-stopped

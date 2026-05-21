@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import re
 import tempfile
+import hmac
 from email.parser import BytesParser
 from email.policy import default
 from http import HTTPStatus
@@ -136,7 +137,7 @@ class UploadHandler(BaseHTTPRequestHandler):
 
         # .envのUPLOAD_TOKENと、リクエストヘッダーのX-Upload-Tokenが一致するか確認します。
         # LAN内だけで使う想定でも、最低限の認証として入れています。
-        if self.headers.get("X-Upload-Token", "") != self.server.upload_token:
+        if not hmac.compare_digest(self.headers.get("X-Upload-Token", ""), self.server.upload_token):
             self.respond_text(HTTPStatus.UNAUTHORIZED, "unauthorized\n")
             return
 
