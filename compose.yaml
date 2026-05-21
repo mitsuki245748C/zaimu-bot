@@ -1,0 +1,15 @@
+services:
+  zaimu-bot:
+    build: .
+    container_name: zaimu-bot
+    environment:
+      UPLOAD_HOST: ${UPLOAD_HOST:-0.0.0.0}
+      UPLOAD_PORT: ${UPLOAD_PORT:-8080}
+      UPLOAD_TOKEN: ${UPLOAD_TOKEN:?UPLOAD_TOKEN is required}
+      PAYPAY_CSV_INBOX_DIR: /app/data/imports/paypay/inbox
+    ports:
+      - "${HOST_BIND_IP:-0.0.0.0}:${HOST_UPLOAD_PORT:?HOST_UPLOAD_PORT is required}:${UPLOAD_PORT:-8080}"
+    volumes:
+      - ./data:/app/data
+    user: "${APP_UID:-1000}:${APP_GID:-1000}"
+    restart: unless-stopped
